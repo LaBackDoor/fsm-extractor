@@ -1,6 +1,6 @@
 # 🦀 fsm-extractor: PLC State Machine Extractor
 
-**fsm-extractor** is a **fast, safe, and modular** command-line utility written in **Rust** for extracting and analyzing **Finite State Machines (FSMs)** from proprietary PLC project XML files. It is a modern, high-performance alternative to existing C# solutions.
+**fsm-extractor** is a **fast, safe, and modular** command-line utility written in **Rust** for extracting and analyzing **Finite State Machines (FSMs)** from proprietary PLC project XML files.
 
 ---
 
