@@ -4,7 +4,7 @@ pub mod dot;
 pub mod markdown;
 
 use crate::fsm::FiniteStateMachine;
-use crate::analysis::FsmStatistics;
+use crate::analysis::{FsmStatistics, StateSignatureTable};
 use anyhow::Result;
 use clap::ValueEnum;
 use std::collections::HashMap;
@@ -48,6 +48,39 @@ impl OutputWriter {
             OutputFormat::Json => json::export_with_analysis(fsm, stats, output_path)?,
             OutputFormat::Dot => dot::export_graphviz(fsm, output_path)?,
             OutputFormat::Markdown => markdown::export_with_analysis(fsm, stats, output_path)?,
+        }
+        Ok(())
+    }
+
+    // Write with signatures
+    pub fn write_with_signatures(
+        &self,
+        fsm: &FiniteStateMachine,
+        signatures: &HashMap<String, StateSignatureTable>,
+        output_path: Option<&Path>
+    ) -> Result<()> {
+        match self.format {
+            OutputFormat::Text => text::print_with_signatures(fsm, signatures),
+            OutputFormat::Json => json::export_with_signatures(fsm, signatures, output_path)?,
+            OutputFormat::Dot => dot::export_graphviz(fsm, output_path)?,
+            OutputFormat::Markdown => markdown::export_with_signatures(fsm, signatures, output_path)?,
+        }
+        Ok(())
+    }
+
+    // Write with full analysis
+    pub fn write_with_full_analysis(
+        &self,
+        fsm: &FiniteStateMachine,
+        stats: &HashMap<String, FsmStatistics>,
+        signatures: &HashMap<String, StateSignatureTable>,
+        output_path: Option<&Path>
+    ) -> Result<()> {
+        match self.format {
+            OutputFormat::Text => text::print_with_full_analysis(fsm, stats, signatures),
+            OutputFormat::Json => json::export_with_full_analysis(fsm, stats, signatures, output_path)?,
+            OutputFormat::Dot => dot::export_graphviz(fsm, output_path)?,
+            OutputFormat::Markdown => markdown::export_with_full_analysis(fsm, stats, signatures, output_path)?,
         }
         Ok(())
     }

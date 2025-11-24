@@ -1,12 +1,18 @@
 pub mod validator;
 pub mod cycles;
 pub mod stats;
+pub mod signatures;
 
 use crate::fsm::FiniteStateMachine;
 use colored::*;
 use std::collections::HashMap;
 
+// Re-export all public types
 pub use cycles::CycleDetector;
+pub use signatures::{
+    SignatureGenerator,
+    StateSignatureTable,
+};
 pub use stats::FsmStatistics;
 pub use validator::FsmValidator;
 
@@ -23,6 +29,20 @@ impl FsmAnalyzer {
         for fb in &fsm.function_blocks {
             let stats = FsmStatistics::analyze(fb);
             results.insert(fb.name.clone(), stats);
+        }
+
+        results
+    }
+
+    /// Generate state signatures for all function blocks
+    pub fn generate_signatures(&self, fsm: &FiniteStateMachine)
+                               -> HashMap<String, StateSignatureTable>
+    {
+        let mut results = HashMap::new();
+
+        for fb in &fsm.function_blocks {
+            let signature_table = SignatureGenerator::generate(fb);
+            results.insert(fb.name.clone(), signature_table);
         }
 
         results
@@ -69,6 +89,18 @@ impl FsmAnalyzer {
                 }
             }
 
+            // Show signatures if enabled
+            if options.show_signatures {
+                let signature_table = SignatureGenerator::generate(fb);
+                println!("\n{}", "State Signatures:".bold());
+                for (state_id, sig) in &signature_table.signatures {
+                    println!("  State {}: {}",
+                             state_id.cyan(),
+                             sig.format_conditions()
+                    );
+                }
+            }
+
             // Always show statistics
             let stats = FsmStatistics::analyze(fb);
             println!("\n{}", "Statistics:".bold());
@@ -86,4 +118,5 @@ pub struct AnalysisOptions {
     pub check_cycles: bool,
     pub check_unreachable: bool,
     pub check_dead_states: bool,
+    pub show_signatures: bool,
 }

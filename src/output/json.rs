@@ -1,5 +1,5 @@
 use crate::fsm::FiniteStateMachine;
-use crate::analysis::FsmStatistics;
+use crate::analysis::{FsmStatistics, StateSignatureTable}; // ✅ NEW IMPORT
 use anyhow::Result;
 use serde_json;
 use std::collections::HashMap;
@@ -32,6 +32,58 @@ pub fn export_with_analysis(
     }
 
     let data = FsmWithAnalysis { fsm, analysis: stats };
+    let json = serde_json::to_string_pretty(&data)?;
+
+    if let Some(path) = output_path {
+        let mut file = File::create(path)?;
+        file.write_all(json.as_bytes())?;
+    } else {
+        println!("{}", json);
+    }
+
+    Ok(())
+}
+
+// Export with signatures
+pub fn export_with_signatures(
+    fsm: &FiniteStateMachine,
+    signatures: &HashMap<String, StateSignatureTable>,
+    output_path: Option<&Path>
+) -> Result<()> {
+    #[derive(serde::Serialize)]
+    struct FsmWithSignatures<'a> {
+        fsm: &'a FiniteStateMachine,
+        signatures: &'a HashMap<String, StateSignatureTable>,
+    }
+
+    let data = FsmWithSignatures { fsm, signatures };
+    let json = serde_json::to_string_pretty(&data)?;
+
+    if let Some(path) = output_path {
+        let mut file = File::create(path)?;
+        file.write_all(json.as_bytes())?;
+    } else {
+        println!("{}", json);
+    }
+
+    Ok(())
+}
+
+// Export with full analysis
+pub fn export_with_full_analysis(
+    fsm: &FiniteStateMachine,
+    stats: &HashMap<String, FsmStatistics>,
+    signatures: &HashMap<String, StateSignatureTable>,
+    output_path: Option<&Path>
+) -> Result<()> {
+    #[derive(serde::Serialize)]
+    struct FsmWithFullAnalysis<'a> {
+        fsm: &'a FiniteStateMachine,
+        analysis: &'a HashMap<String, FsmStatistics>,
+        signatures: &'a HashMap<String, StateSignatureTable>,
+    }
+
+    let data = FsmWithFullAnalysis { fsm, analysis: stats, signatures };
     let json = serde_json::to_string_pretty(&data)?;
 
     if let Some(path) = output_path {
