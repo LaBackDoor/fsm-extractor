@@ -13,7 +13,7 @@ use crate::output::{OutputFormat, OutputWriter};
 use crate::analysis::{FsmAnalyzer, AnalysisOptions};
 
 #[derive(Parser)]
-#[command(name = "fsm-extractor")]
+#[command(name = "plc-fsm-analyzer")]
 #[command(about = "Extract and analyze FSMs from PLC XML output")]
 #[command(version)]
 struct Cli {
